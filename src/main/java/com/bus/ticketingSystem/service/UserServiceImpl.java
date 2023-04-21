@@ -30,8 +30,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
+        if (checkIsUserAlreadyExist(user)){
+            return null;
+        }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    private boolean checkIsUserAlreadyExist(User user) {
+        Optional<User> result = userRepository.findByUsername(user.getUsername());
+        return result.isPresent();
     }
 
     static User unwrapUser(Optional<User> entity, Long id) {

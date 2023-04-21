@@ -17,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -25,14 +26,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private CustomAuthenticationManager authenticationManager;
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
             User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-            return authenticationManager.authenticate(authentication);
+            System.out.println("USERNAME: " + user.getUsername());
+            System.out.println("PASS: " + user.getPassword());
+            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    user.getUsername(),
+                    user.getPassword(),
+                    new ArrayList<>()
+            ));
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -44,7 +49,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         String token = JWT.create()
                 .withSubject(authResult.getName())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))

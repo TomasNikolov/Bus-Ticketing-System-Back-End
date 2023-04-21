@@ -16,7 +16,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (EntityNotFoundException e) { //Feel free to create a separate function.
+        } catch (EntityNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("Username doesn't exist");
             response.getWriter().flush();
@@ -27,6 +27,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         } catch (RuntimeException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("BAD REQUEST");
+            response.getWriter().write(e.getMessage());
+            response.getWriter().write(e.getStackTrace().toString());
             response.getWriter().flush();
         }
     }

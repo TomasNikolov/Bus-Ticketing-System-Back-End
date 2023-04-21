@@ -21,10 +21,13 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         User user = userServiceImpl.getUser(authentication.getName());
+        System.out.println("USER IN AUTHENTICATE: " + user.getUsername());
+        System.out.println("AUTHENTICATION: " + authentication);
         if (!bCryptPasswordEncoder.matches(authentication.getCredentials().toString(), user.getPassword())) {
             throw new BadCredentialsException("You provided an incorrect password.");
         }
 
+        System.out.println("Match!");
         return new UsernamePasswordAuthenticationToken(authentication.getName(), user.getPassword());
     }
 }
