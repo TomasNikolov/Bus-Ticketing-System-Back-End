@@ -21,12 +21,12 @@ public class Ticket {
     private int seatNumber;
 
     @NonNull
-    @Column(nullable = false)
-    private String source;
+    @Column(name = "start_destination", nullable = false)
+    private String startDestination;
 
     @NonNull
-    @Column(nullable = false)
-    private String destination;
+    @Column(name = "end_destination", nullable = false)
+    private String endDestination;
 
     @NonNull
     @Column(name = "passenger_name", nullable = false)

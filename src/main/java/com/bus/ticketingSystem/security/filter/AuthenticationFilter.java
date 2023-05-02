@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.security.SecurityConstants;
 import com.bus.ticketingSystem.security.manager.CustomAuthenticationManager;
+import com.bus.ticketingSystem.service.UserServiceImpl;
+import com.bus.ticketingSystem.service.interfaces.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,13 +26,13 @@ import java.util.Date;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private CustomAuthenticationManager authenticationManager;
+    private UserService userService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
             User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
-            System.out.println("USERNAME: " + user.getUsername());
-            System.out.println("PASS: " + user.getPassword());
+
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     user.getUsername(),
                     user.getPassword(),
@@ -50,10 +52,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        String token = JWT.create()
-                .withSubject(authResult.getName())
-                .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))
-                .sign(Algorithm.HMAC512(SecurityConstants.SECRET_KEY));
-        response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
+        System.out.println("SUCCESSFUL AUTHENTICATION");
+        User user = userService.getUser(authResult.getName());
+
+        System.out.println("USER ROLE: " + user.getRole());
+        System.out.println("ROLE: " + User.Role.ADMIN);
+
+        if (user.getRole() == User.Role.ADMIN) {
+            String token = JWT.create()
+                    .withSubject(authResult.getName())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))
+                    .sign(Algorithm.HMAC512(SecurityConstants.SECRET_KEY));
+            response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
+        }
     }
 }

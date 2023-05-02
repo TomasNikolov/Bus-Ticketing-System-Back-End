@@ -1,4 +1,4 @@
-package com.bus.ticketingSystem.entity;
+package com.bus.ticketingSystem.DTO;
 
 import lombok.*;
 import java.time.LocalDate;

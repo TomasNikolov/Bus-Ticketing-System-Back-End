@@ -4,6 +4,7 @@ import com.bus.ticketingSystem.security.filter.AuthenticationFilter;
 import com.bus.ticketingSystem.security.filter.ExceptionHandlerFilter;
 import com.bus.ticketingSystem.security.filter.JWTAuthorizationFilter;
 import com.bus.ticketingSystem.security.manager.CustomAuthenticationManager;
+import com.bus.ticketingSystem.service.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,16 +24,19 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final CustomAuthenticationManager customAuthenticationManager;
+    private final UserService userService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager, userService);
         authenticationFilter.setFilterProcessesUrl("/authenticate");
 
         http
                 .cors(Customizer.withDefaults()).csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll()
+                .requestMatchers(HttpMethod.GET, SecurityConstants.BUS_PATH).permitAll()
+                .requestMatchers(HttpMethod.POST, SecurityConstants.BOOKING_PATH).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)

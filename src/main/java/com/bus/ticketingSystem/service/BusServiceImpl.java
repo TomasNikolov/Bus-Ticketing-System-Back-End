@@ -1,11 +1,13 @@
 package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.entity.Bus;
-import com.bus.ticketingSystem.entity.Reservation;
+import com.bus.ticketingSystem.DTO.Reservation;
+import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.BusRepository;
 import com.bus.ticketingSystem.service.interfaces.BusService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +34,19 @@ public class BusServiceImpl implements BusService {
             System.out.println("STACK TRACE: " + Arrays.toString(e.getStackTrace()));
         }
 
-        return unwrapBus(buses);
+        return unwrapBuses(buses);
     }
 
-    static List<Bus> unwrapBus(List<Optional<Bus>> entity) {
+    @Override
+    @Transactional
+    public Bus updateBusSeats(Long id, int reservedTickets) {
+        Bus bus = unwrapBus(busRepository.findById(id));
+        bus.setReservedSeats(reservedTickets);
+        bus.setAvailableSeats(bus.getCapacity() - reservedTickets);
+        return busRepository.save(bus);
+    }
+
+    private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {
         List<Bus> result = new ArrayList<>();
         for (Optional<Bus> optionalBus : entity) {
             if (optionalBus.isPresent()) {
@@ -48,5 +59,11 @@ public class BusServiceImpl implements BusService {
         }
 
         return result;
+    }
+
+    private static Bus unwrapBus(Optional<Bus> entity) {
+        if (entity.isPresent()) return entity.get();
+        else
+            throw new EntityNotFoundException("We apologize, but we were unable to find any buses with this ID in our system.");
     }
 }

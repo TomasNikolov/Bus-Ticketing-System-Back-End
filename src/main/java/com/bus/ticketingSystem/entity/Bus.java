@@ -34,6 +34,14 @@ public class Bus {
     private int capacity;
 
     @NonNull
+    @Column(name = "available_seats", nullable = false)
+    private int availableSeats;
+
+    @NonNull
+    @Column(name = "reserved_seats", nullable = false)
+    private int reservedSeats;
+
+    @NonNull
     @Column(name = "departure_date", nullable = false)
     private LocalDate departureDate;
 

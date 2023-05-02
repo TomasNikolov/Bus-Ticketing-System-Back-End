@@ -29,11 +29,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User createUser(User user) {
         if (checkIsUserAlreadyExist(user)){
             return null;
         }
+
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setRole(User.Role.USER);
+
         return userRepository.save(user);
     }
 

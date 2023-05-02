@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
 
-        User result = userService.saveUser(user);
+        User result = userService.createUser(user);
         if (result == null) {
             return new ResponseEntity<>(new ErrorResponse(Arrays.asList("User already exist")),HttpStatus.BAD_REQUEST);
         }
