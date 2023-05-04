@@ -4,23 +4,18 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "bus")
+@Table(name = "bookings")
 @Getter
 @Setter
 @RequiredArgsConstructor
 @NoArgsConstructor
-public class Bus {
+public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
-    @NonNull
-    @Column(nullable = false)
-    private String name;
 
     @NonNull
     @Column(name = "start_destination", nullable = false)
@@ -29,18 +24,6 @@ public class Bus {
     @NonNull
     @Column(name = "end_destination", nullable = false)
     private String endDestination;
-
-    @NonNull
-    @Column(nullable = false)
-    private int capacity;
-
-    @NonNull
-    @Column(name = "available_seats", nullable = false)
-    private int availableSeats;
-
-    @NonNull
-    @Column(name = "reserved_seats", nullable = false)
-    private int reservedSeats;
 
     @NonNull
     @Column(name = "departure_date", nullable = false)
@@ -59,6 +42,26 @@ public class Bus {
     private LocalTime arrivalTime;
 
     @NonNull
+    @Column(name = "bus_name", nullable = false)
+    private String busName;
+
+    @NonNull
     @Column(nullable = false)
-    private double distance;
+    private double price;
+
+    @NonNull
+    @Column(name = "user_id", nullable = false)
+    private long userId;
+
+    @NonNull
+    @Column(name = "ticket_id", nullable = false)
+    private long ticketId;
+
+    @NonNull
+    @Column(name = "bus_id", nullable = false)
+    private long busId;
+
+    @NonNull
+    @Column(name = "active", nullable = false)
+    private boolean isActive;
 }

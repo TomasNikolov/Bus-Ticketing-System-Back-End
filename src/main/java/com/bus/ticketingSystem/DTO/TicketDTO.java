@@ -18,4 +18,6 @@ public class TicketDTO {
     private int busCapacity;
 
     private int reservedTickets;
+
+    private long userId;
 }

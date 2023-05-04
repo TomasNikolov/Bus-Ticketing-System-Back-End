@@ -1,8 +1,10 @@
 package com.bus.ticketingSystem.web;
 
+import com.bus.ticketingSystem.DTO.BookingDTO;
 import com.bus.ticketingSystem.DTO.TicketDTO;
 import com.bus.ticketingSystem.entity.Ticket;
 import com.bus.ticketingSystem.service.interfaces.BookingService;
+import com.bus.ticketingSystem.service.interfaces.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +15,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/booking")
 public class BookingController {
+    private TicketService ticketService;
     private BookingService bookingService;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(TicketService ticketService, BookingService bookingService) {
+        this.ticketService = ticketService;
         this.bookingService = bookingService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BookingDTO>> getBookings(@RequestParam Long userId) {
+        return new ResponseEntity<>(bookingService.getBookingsByUserId(userId), HttpStatus.OK);
     }
 
     @PostMapping("/reserve-ticket")
     public ResponseEntity<List<Ticket>> reserveTicket(@Valid @RequestBody List<TicketDTO> tickets) {
-        return new ResponseEntity<>(bookingService.reserveTickets(tickets), HttpStatus.OK);
+        return new ResponseEntity<>(ticketService.reserveTickets(tickets), HttpStatus.OK);
     }
 }

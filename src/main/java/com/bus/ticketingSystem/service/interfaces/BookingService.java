@@ -1,10 +1,12 @@
 package com.bus.ticketingSystem.service.interfaces;
 
-import com.bus.ticketingSystem.DTO.TicketDTO;
-import com.bus.ticketingSystem.entity.Ticket;
+import com.bus.ticketingSystem.DTO.BookingDTO;
+import com.bus.ticketingSystem.entity.Booking;
 
 import java.util.List;
+import java.util.Set;
 
 public interface BookingService {
-    List<Ticket> reserveTickets(List<TicketDTO> tickets);
+    List<Booking> createBookings(long userId);
+    List<BookingDTO> getBookingsByUserId(long userId);
 }

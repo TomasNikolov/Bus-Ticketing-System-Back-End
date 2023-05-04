@@ -33,10 +33,22 @@ public class Ticket {
     private String passengerName;
 
     @NonNull
+    @Column(name = "user_id", nullable = false)
+    private long userId;
+
+    @NonNull
     @Column(name = "bus_id", nullable = false)
     private long busId;
 
     @NonNull
     @Column(name = "issue_date", nullable = false)
     private LocalDateTime issueDate;
+
+    @NonNull
+    @Column(nullable = false)
+    private double price;
+
+    @NonNull
+    @Column(name = "is_payed", nullable = false)
+    private boolean isPayed;
 }

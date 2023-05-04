@@ -2,17 +2,13 @@ package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.DTO.Reservation;
-import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.BusRepository;
 import com.bus.ticketingSystem.service.interfaces.BusService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BusServiceImpl implements BusService {
@@ -44,6 +40,22 @@ public class BusServiceImpl implements BusService {
         bus.setReservedSeats(reservedTickets);
         bus.setAvailableSeats(bus.getCapacity() - reservedTickets);
         return busRepository.save(bus);
+    }
+
+    @Override
+    public List<Bus> getBussesByIds(Set<Long> ids) {
+        return busRepository.findAllById(ids);
+    }
+
+    @Override
+    public Bus getBusById(long id, List<Bus> buses) {
+        for (Bus bus : buses) {
+            if (bus.getId() == id) {
+                return bus;
+            }
+        }
+
+        return null;
     }
 
     private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {

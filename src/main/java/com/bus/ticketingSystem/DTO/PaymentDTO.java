@@ -11,4 +11,5 @@ public class PaymentDTO {
     private String expiryDate;
     private int cvv;
     private double amount;
+    private long userId;
 }

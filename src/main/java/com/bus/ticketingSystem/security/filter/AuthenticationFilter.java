@@ -52,11 +52,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        System.out.println("SUCCESSFUL AUTHENTICATION");
         User user = userService.getUser(authResult.getName());
-
-        System.out.println("USER ROLE: " + user.getRole());
-        System.out.println("ROLE: " + User.Role.ADMIN);
 
         if (user.getRole() == User.Role.ADMIN) {
             String token = JWT.create()
@@ -64,6 +60,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                     .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))
                     .sign(Algorithm.HMAC512(SecurityConstants.SECRET_KEY));
             response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
+        } else {
+            response.getWriter().write(Long.toString(user.getId()));
+            response.getWriter().flush();
         }
     }
 }

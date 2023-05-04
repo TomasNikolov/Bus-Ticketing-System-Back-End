@@ -7,6 +7,7 @@ import com.bus.ticketingSystem.service.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User createUser(User user) {
         if (checkIsUserAlreadyExist(user)){
             return null;
@@ -38,6 +40,11 @@ public class UserServiceImpl implements UserService {
         user.setRole(User.Role.USER);
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public long getUserId(String username) {
+        return unwrapUser(userRepository.findByUsername(username), 404L).getId();
     }
 
     private boolean checkIsUserAlreadyExist(User user) {
