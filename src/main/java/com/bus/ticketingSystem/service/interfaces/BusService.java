@@ -11,4 +11,5 @@ public interface BusService {
     Bus updateBusSeats(Long id, int reservedTickets);
     List<Bus> getBussesByIds(Set<Long> ids);
     Bus getBusById(long id, List<Bus> buses);
+    void updateBusSeatsAfterBookingCancellation(Long id);
 }

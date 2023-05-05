@@ -37,8 +37,10 @@ public class BusServiceImpl implements BusService {
     @Transactional
     public Bus updateBusSeats(Long id, int reservedTickets) {
         Bus bus = unwrapBus(busRepository.findById(id));
-        bus.setReservedSeats(reservedTickets);
-        bus.setAvailableSeats(bus.getCapacity() - reservedTickets);
+        System.out.println("RESERVED TICKETS: " + reservedTickets);
+        bus.setReservedSeats(bus.getReservedSeats() + reservedTickets);
+        System.out.println("RESERVED SEATS: " + bus.getReservedSeats());
+        bus.setAvailableSeats(bus.getCapacity() - bus.getReservedSeats());
         return busRepository.save(bus);
     }
 
@@ -56,6 +58,17 @@ public class BusServiceImpl implements BusService {
         }
 
         return null;
+    }
+
+    @Override
+    @Transactional
+    public void updateBusSeatsAfterBookingCancellation(Long id) {
+        Bus bus = unwrapBus(busRepository.findById(id));
+        if (bus.getCapacity() > bus.getAvailableSeats()) {
+            bus.setReservedSeats(bus.getReservedSeats() - 1);
+            bus.setAvailableSeats(bus.getAvailableSeats() + 1);
+        }
+        busRepository.save(bus);
     }
 
     private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {

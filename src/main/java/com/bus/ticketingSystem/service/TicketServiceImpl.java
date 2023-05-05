@@ -1,6 +1,7 @@
 package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.DTO.TicketDTO;
+import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.entity.Ticket;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.TicketRepository;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -31,17 +30,18 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public List<Ticket> reserveTickets(List<TicketDTO> tickets) {
         List<Ticket> ticketsForSave = new ArrayList<>();
+        Map<Integer, Boolean> busSeats = generateSeatsMap(tickets.get(0));
 
-        int reservedSeats = tickets.get(0).getReservedTickets();
+//        int reservedSeats = tickets.get(0).getReservedTickets();
         for (TicketDTO item : tickets) {
-            ticketsForSave.add(createTicket(reservedSeats, item));
-            reservedSeats++;
+            ticketsForSave.add(createTicket(item));
+//            reservedSeats++;
         }
 
-        List<Ticket> alreadySavedTickets = ticketRepository.saveAllAndFlush(ticketsForSave);
+        List<Ticket> alreadySavedTickets = ticketRepository.saveAllAndFlush(generateSeatNumbers(ticketsForSave, busSeats));
 
         if (alreadySavedTickets.size() == tickets.size()) {
-            busService.updateBusSeats(tickets.get(0).getBusId(), reservedSeats);
+            busService.updateBusSeats(tickets.get(0).getBusId(), tickets.size());
         }
 
         return alreadySavedTickets;
@@ -49,18 +49,26 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public Ticket updateTicketStatus(long id, boolean isPayed) {
-        Ticket ticket = unwrapTicket(ticketRepository.findById(id));
-        ticket.setPayed(isPayed);
-        return ticketRepository.save(ticket);
+    public List<Ticket> payTickets(long userId) {
+        List<Ticket> tickets = ticketRepository.findUnpaidTicketsByUserId(userId);
+        for (Ticket ticket : tickets) {
+            ticket.setPayed(true);
+        }
+        return ticketRepository.saveAllAndFlush(tickets);
     }
 
     @Override
-    public List<Ticket> getTicketsByUserId(long userId) {
-        return ticketRepository.findTicketsByUserId(userId);
+    public List<Ticket> getUnpaidTicketsByUserId(long userId) {
+        return ticketRepository.findUnpaidTicketsByUserId(userId);
     }
 
-    private Ticket createTicket(int reservedSeats, TicketDTO item) {
+    @Override
+    @Transactional
+    public void deleteTicket(long id) {
+        ticketRepository.deleteById(id);
+    }
+
+    private Ticket createTicket(TicketDTO item) {
         Ticket ticket = new Ticket();
         ticket.setBusId(item.getBusId());
         ticket.setUserId(item.getUserId());
@@ -68,14 +76,44 @@ public class TicketServiceImpl implements TicketService {
         ticket.setStartDestination(item.getStartDestination());
         ticket.setEndDestination(item.getEndDestination());
         ticket.setIssueDate(LocalDateTime.now());
-        ticket.setSeatNumber(generateSeatNumber(reservedSeats));
+//        ticket.setSeatNumber(generateSeatNumber(reservedSeats));
         ticket.setPayed(false);
 
         return ticket;
     }
 
-    private int generateSeatNumber(int reservedSeats) {
-        return reservedSeats == 0 ? 1 : reservedSeats + 1;
+    private Map<Integer, Boolean> generateSeatsMap(TicketDTO ticket) {
+        Map<Integer, Boolean> result = new HashMap<>();
+        for (int i = 1; i <= ticket.getBusCapacity(); i++) {
+            result.put(i, false);
+        }
+
+        return pushReservedSeats(result, ticket.getBusId());
+    }
+
+    private Map<Integer, Boolean> pushReservedSeats(Map<Integer, Boolean> result, long busId) {
+        List<Ticket> reservedTickets = ticketRepository.findTicketsByBusId(busId);
+        for (Ticket ticket : reservedTickets) {
+            result.put(ticket.getSeatNumber(), true);
+        }
+
+        System.out.println("SEATS MAP: " + result);
+        return result;
+    }
+
+    private List<Ticket> generateSeatNumbers(List<Ticket> tickets, Map<Integer, Boolean> reservedSeats) {
+        for (Ticket ticket : tickets) {
+            for (Map.Entry<Integer, Boolean> entry : reservedSeats.entrySet()) {
+                if (!entry.getValue()) {
+                    entry.setValue(true);
+                    ticket.setSeatNumber(entry.getKey());
+                    System.out.println("RESERVING SEAT WITH NUMBER " + entry.getKey() + " FOR PASSENGER " + ticket.getPassengerName());
+                    break;
+                }
+            }
+        }
+
+        return tickets;
     }
 
     private static Ticket unwrapTicket(Optional<Ticket> entity) {

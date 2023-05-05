@@ -4,6 +4,7 @@ import com.bus.ticketingSystem.DTO.BookingDTO;
 import com.bus.ticketingSystem.entity.Booking;
 import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.entity.Ticket;
+import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.BookingRepository;
 import com.bus.ticketingSystem.service.interfaces.BookingService;
 import com.bus.ticketingSystem.service.interfaces.BusService;
@@ -30,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public List<Booking> createBookings(long userId) {
         List<Booking> bookings = new ArrayList<>();
-        List<Ticket> tickets = ticketService.getTicketsByUserId(userId);
+        List<Ticket> tickets = ticketService.getUnpaidTicketsByUserId(userId);
         Map<Long, Bus> busMap = generateBusMap(tickets);
 
         for (Ticket ticket : tickets) {
@@ -51,6 +52,15 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingsData;
+    }
+
+    @Override
+    @Transactional
+    public void cancelBooking(long id) {
+        Booking booking = unwrapBooking(bookingRepository.findById(id));
+        ticketService.deleteTicket(booking.getTicketId());
+        busService.updateBusSeatsAfterBookingCancellation(booking.getBusId());
+        bookingRepository.deleteById(id);
     }
 
     private static BookingDTO createBookingDTO(Booking booking) {
@@ -110,5 +120,11 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return result;
+    }
+
+    private static Booking unwrapBooking(Optional<Booking> entity) {
+        if (entity.isPresent()) return entity.get();
+        else
+            throw new EntityNotFoundException("We apologize, but we were unable to find any bookings with this ID in our system.");
     }
 }

@@ -32,4 +32,10 @@ public class BookingController {
     public ResponseEntity<List<Ticket>> reserveTicket(@Valid @RequestBody List<TicketDTO> tickets) {
         return new ResponseEntity<>(ticketService.reserveTickets(tickets), HttpStatus.OK);
     }
+
+    @DeleteMapping
+    public ResponseEntity<HttpStatus> cancelBooking(@RequestParam Long id) {
+        bookingService.cancelBooking(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

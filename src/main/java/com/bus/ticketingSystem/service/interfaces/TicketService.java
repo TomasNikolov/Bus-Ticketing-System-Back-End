@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface TicketService {
     List<Ticket> reserveTickets(List<TicketDTO> tickets);
-    Ticket updateTicketStatus(long id, boolean isPayed);
-    List<Ticket> getTicketsByUserId(long userId);
+    List<Ticket> payTickets(long userId);
+    List<Ticket> getUnpaidTicketsByUserId(long userId);
+    void deleteTicket(long id);
 }

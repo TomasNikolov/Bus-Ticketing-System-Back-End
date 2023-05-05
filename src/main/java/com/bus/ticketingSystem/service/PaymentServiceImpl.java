@@ -5,6 +5,7 @@ import com.bus.ticketingSystem.entity.Payment;
 import com.bus.ticketingSystem.repository.PaymentRepository;
 import com.bus.ticketingSystem.service.interfaces.BookingService;
 import com.bus.ticketingSystem.service.interfaces.PaymentService;
+import com.bus.ticketingSystem.service.interfaces.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentServiceImpl implements PaymentService {
     private PaymentRepository paymentRepository;
     private BookingService bookingService;
+    private TicketService ticketService;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, BookingService bookingService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, BookingService bookingService, TicketService ticketService) {
         this.paymentRepository = paymentRepository;
         this.bookingService = bookingService;
+        this.ticketService = ticketService;
     }
 
     @Override
@@ -23,6 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment savePayment(PaymentDTO paymentData) {
         Payment payment = paymentRepository.save(getPayment(paymentData));
         bookingService.createBookings(paymentData.getUserId());
+        ticketService.payTickets(paymentData.getUserId());
         return payment;
     }
 
