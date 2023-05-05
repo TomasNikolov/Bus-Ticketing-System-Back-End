@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Ticket</title>
+    <meta charset="UTF-8"></meta>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2f2f2;
+            color: #444444;
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 30px;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 28px;
+            color: #444444;
+        }
+
+        h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #666666;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+
+        table td, table th {
+            padding: 10px;
+            border: 1px solid #dddddd;
+            text-align: left;
+            font-size: 16px;
+            color: #444444;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-primary {
+            color: #007bff;
+        }
+
+        .text-secondary {
+            color: #6c757d;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-info {
+            color: #17a2b8;
+        }
+
+        .text-warning {
+            color: #ffc107;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-lowercase {
+            text-transform: lowercase;
+        }
+
+        .text-capitalize {
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Bus Ticket</h2>
+    <table>
+        <tr>
+            <th class="text-primary">Date of Departure</th>
+            <td class="text-secondary" th:text="${date}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Name of Primary Passenger</th>
+            <td class="text-secondary" th:text="${name}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Ticket No</th>
+            <td class="text-secondary" th:text="${ticketNumber}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Departure</th>
+            <td class="text-secondary" th:text="${From}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Destination</th>
+            <td class="text-secondary" th:text="${to}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Ticket Seat Number</th>
+            <td class="text-secondary" th:text="${seatNumber}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Ticket Price</th>
+            <td class="text-secondary" th:text="${price}"></td>
+        </tr>
+        <tr>
+            <th class="text-primary">Payment Method</th>
+            <td class="text-secondary">CREDIT CARD</td>
+        </tr>
+    </table>
+    <p class="text-center text-muted">Thank you for choosing our service!</p>
+</div>
+</body>
+</html>

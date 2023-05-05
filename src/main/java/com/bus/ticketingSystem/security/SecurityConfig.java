@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll()
                 .requestMatchers(HttpMethod.GET, SecurityConstants.BUS_PATH).permitAll()
                 .requestMatchers(SecurityConstants.BOOKING_PATH).permitAll()
+                .requestMatchers(SecurityConstants.TICKET_PATH).permitAll()
                 .requestMatchers(HttpMethod.POST, SecurityConstants.PAYMENT_PATH).permitAll()
                 .anyRequest().authenticated()
                 .and()

@@ -66,6 +66,7 @@ public class BookingServiceImpl implements BookingService {
     private static BookingDTO createBookingDTO(Booking booking) {
         BookingDTO bookingDTO = new BookingDTO();
         bookingDTO.setId(booking.getId());
+        bookingDTO.setTicketId(booking.getTicketId());
         bookingDTO.setStartDestination(booking.getStartDestination());
         bookingDTO.setEndDestination(booking.getEndDestination());
         bookingDTO.setDepartureDate(booking.getDepartureDate());

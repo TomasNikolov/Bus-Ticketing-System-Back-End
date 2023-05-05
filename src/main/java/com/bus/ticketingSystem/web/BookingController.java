@@ -28,11 +28,6 @@ public class BookingController {
         return new ResponseEntity<>(bookingService.getBookingsByUserId(userId), HttpStatus.OK);
     }
 
-    @PostMapping("/reserve-ticket")
-    public ResponseEntity<List<Ticket>> reserveTicket(@Valid @RequestBody List<TicketDTO> tickets) {
-        return new ResponseEntity<>(ticketService.reserveTickets(tickets), HttpStatus.OK);
-    }
-
     @DeleteMapping
     public ResponseEntity<HttpStatus> cancelBooking(@RequestParam Long id) {
         bookingService.cancelBooking(id);

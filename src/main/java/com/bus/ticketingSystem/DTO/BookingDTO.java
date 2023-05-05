@@ -19,4 +19,5 @@ public class BookingDTO {
     private String busName;
     private double price;
     private String status;
+    private long ticketId;
 }

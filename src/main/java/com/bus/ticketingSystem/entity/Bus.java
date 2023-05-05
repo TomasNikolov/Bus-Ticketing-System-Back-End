@@ -60,4 +60,8 @@ public class Bus {
     @NonNull
     @Column(nullable = false)
     private double distance;
+
+    @NonNull
+    @Column(name = "ticket_price", nullable = false)
+    private double ticketPrice;
 }

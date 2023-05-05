@@ -8,16 +8,11 @@ import lombok.Setter;
 @Setter
 public class TicketDTO {
     private String startDestination;
-
     private String endDestination;
-
     private String passengerName;
-
     private long busId;
-
     private int busCapacity;
-
     private int reservedTickets;
-
     private long userId;
+    private double price;
 }

@@ -21,11 +21,6 @@ public class BusController {
 
     @GetMapping
     public ResponseEntity<List<Bus>> getBuses(@RequestParam String start, @RequestParam String end, @RequestParam LocalDate date) {
-        Reservation reservation = new Reservation(start, end, date);
-        System.out.println("START: " + reservation.getStartDestination());
-        System.out.println("END: " + reservation.getEndDestination());
-        System.out.println("DATE: " + reservation.getDate());
-
-        return new ResponseEntity<>(busService.getBusesByDestinationAndDate(reservation), HttpStatus.OK);
+        return new ResponseEntity<>(busService.getBusesByDestinationAndDate(new Reservation(start, end, date)), HttpStatus.OK);
     }
 }
