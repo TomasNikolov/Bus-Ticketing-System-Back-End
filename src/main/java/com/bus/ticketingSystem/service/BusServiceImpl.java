@@ -71,6 +71,11 @@ public class BusServiceImpl implements BusService {
         busRepository.save(bus);
     }
 
+    @Override
+    public Bus getBusById(long id) {
+        return unwrapBus(busRepository.findById(id));
+    }
+
     private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {
         List<Bus> result = new ArrayList<>();
         for (Optional<Bus> optionalBus : entity) {

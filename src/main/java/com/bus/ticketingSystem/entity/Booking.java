@@ -49,17 +49,17 @@ public class Booking {
     @Column(nullable = false)
     private double price;
 
-    @NonNull
-    @Column(name = "user_id", nullable = false)
-    private long userId;
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
 
-    @NonNull
-    @Column(name = "ticket_id", nullable = false)
-    private long ticketId;
+    @OneToOne(targetEntity = Ticket.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
 
-    @NonNull
-    @Column(name = "bus_id", nullable = false)
-    private long busId;
+    @ManyToOne(targetEntity = Bus.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "bus_id")
+    private Bus bus;
 
     @NonNull
     @Column(name = "active", nullable = false)

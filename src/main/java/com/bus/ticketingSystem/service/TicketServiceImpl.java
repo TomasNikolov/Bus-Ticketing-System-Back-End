@@ -2,6 +2,7 @@ package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.DTO.TicketDTO;
 import com.bus.ticketingSystem.entity.Ticket;
+import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.TicketRepository;
 import com.bus.ticketingSystem.service.interfaces.BusService;
@@ -13,7 +14,6 @@ import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -90,26 +90,24 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void sendTicket(long id) {
-        generatePDFAndSendMail(unwrapTicket(ticketRepository.findById(id)));
+        Ticket ticket = unwrapTicket(ticketRepository.findById(id));
+        generatePDFAndSendMail(ticket, ticket.getUser());
     }
 
-    private void generatePDFAndSendMail(Ticket ticket) {
+    private void generatePDFAndSendMail(Ticket ticket, User user) {
         int random = (int) (Math.random() * 90) + 10;
-        String nameGenerator = "TomasNikolov" + "_ticket_" + random + ".pdf";
+        String nameGenerator = user.getFirstName() + "_" + user.getLastName() + "_ticket_" + random + ".pdf";
         try {
-            createPdf(ticket, nameGenerator);
-            sendEmail(ticket, nameGenerator);
+            createPdf(ticket, user, nameGenerator);
+            sendEmail(user, nameGenerator);
         } catch (DocumentException | IOException e) {
             System.out.println("Error in generatePDFAndSendMail: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void sendEmail(Ticket ticket, String fileName) {
+    private void sendEmail(User user, String fileName) {
         try {
-            final String username = "tomasnikolov12@gmail.com";
-            final String password = "znlhjkslesrqgpdo";
-
             Properties props = new Properties();
             props.put("mail.smtp.auth", true);
             props.put("mail.smtp.starttls.enable", true);
@@ -119,57 +117,11 @@ public class TicketServiceImpl implements TicketService {
             Session session = Session.getInstance(props,
                     new jakarta.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(username, password);
+                            return new PasswordAuthentication("tomasnikolov12@gmail.com", "znlhjkslesrqgpdo");
                         }
                     });
-            // Create a default MimeMessage object.
-            Message message = new MimeMessage(session);
 
-            // Set From: header field of the header.
-            message.setFrom(new InternetAddress(username));
-
-            // Set To: header field of the header.
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("tomasnik81@gmail.com"));
-
-            // Set Subject: header field
-            message.setSubject("BUS TICKET");
-
-            // Create the message part
-            BodyPart messageBodyPart = new MimeBodyPart();
-
-            String passengerName = "Tomas Nikolov";
-            // Now set the actual message
-            messageBodyPart.setText("Dear " + passengerName + ",\n" +
-                    "\n" +
-                    "We are pleased to confirm your booking for the upcoming bus journey with our company. Your bus ticket is attached to this email.\n" +
-                    "\n" +
-                    "Please arrive at the pickup point at least 15 minutes before the scheduled departure time. Our team will be there to assist you with any queries or concerns you may have.\n" +
-                    "\n" +
-                    "We hope you have a pleasant journey with us.\n" +
-                    "\n" +
-                    "Best regards,\n" +
-                    "\n" +
-                    "Bus Ticketing Company");
-
-            // Create a multipar message
-            Multipart multipart = new MimeMultipart();
-
-            // Set text message part
-            multipart.addBodyPart(messageBodyPart);
-
-            // Part two is attachment
-            messageBodyPart = new MimeBodyPart();
-
-            String filePath = "tickets/" + fileName;
-            DataSource source = new FileDataSource(filePath);
-            messageBodyPart.setDataHandler(new DataHandler(source));
-            messageBodyPart.setFileName(fileName);
-            multipart.addBodyPart(messageBodyPart);
-
-            // Send the complete message parts
-            message.setContent(multipart);
-
-            Transport.send(message);
+            Transport.send(createTicketEmail(user, fileName, session));
 
             System.out.println("Sent message successfully....");
         } catch (MessagingException e) {
@@ -178,9 +130,40 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
-    public void createPdf(Ticket ticket, String fileName) throws DocumentException, IOException {
+    private static Message createTicketEmail(User user, String fileName, Session session) throws MessagingException {
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress("tomasnikolov12@gmail.com"));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
+        message.setSubject("BUS TICKET");
+        BodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setText("Dear " + user.getFirstName() + " " + user.getLastName() + ",\n" +
+                "\n" +
+                "We are pleased to confirm your booking for the upcoming bus journey with our company. Your bus ticket is attached to this email.\n" +
+                "\n" +
+                "Please arrive at the pickup point at least 15 minutes before the scheduled departure time. Our team will be there to assist you with any queries or concerns you may have.\n" +
+                "\n" +
+                "We hope you have a pleasant journey with us.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "\n" +
+                "Bus Ticketing Company");
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(messageBodyPart);
+        messageBodyPart = new MimeBodyPart();
+
+        DataSource source = new FileDataSource("tickets/" + fileName);
+        messageBodyPart.setDataHandler(new DataHandler(source));
+        messageBodyPart.setFileName(fileName);
+        multipart.addBodyPart(messageBodyPart);
+        message.setContent(multipart);
+
+        return message;
+    }
+
+    public void createPdf(Ticket ticket, User user, String fileName) throws DocumentException, IOException {
         Context context = new Context();
-        context.setVariable("name", "Tomas Nikolov");
+        context.setVariable("name", user.getFirstName() + " " + user.getLastName());
         context.setVariable("date", ticket.getIssueDate());
         context.setVariable("From", ticket.getStartDestination());
         context.setVariable("to", ticket.getEndDestination());
@@ -206,8 +189,8 @@ public class TicketServiceImpl implements TicketService {
 
     private Ticket createTicket(TicketDTO item) {
         Ticket ticket = new Ticket();
-        ticket.setBusId(item.getBusId());
-        ticket.setUserId(item.getUserId());
+        ticket.setBus(busService.getBusById(item.getBusId()));
+        ticket.setUser(userService.getUser(item.getUserId()));
         ticket.setPassengerName(item.getPassengerName());
         ticket.setStartDestination(item.getStartDestination());
         ticket.setEndDestination(item.getEndDestination());

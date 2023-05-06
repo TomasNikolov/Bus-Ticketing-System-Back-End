@@ -58,15 +58,15 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public void cancelBooking(long id) {
         Booking booking = unwrapBooking(bookingRepository.findById(id));
-        ticketService.deleteTicket(booking.getTicketId());
-        busService.updateBusSeatsAfterBookingCancellation(booking.getBusId());
+        ticketService.deleteTicket(booking.getTicket().getId());
+        busService.updateBusSeatsAfterBookingCancellation(booking.getBus().getId());
         bookingRepository.deleteById(id);
     }
 
     private static BookingDTO createBookingDTO(Booking booking) {
         BookingDTO bookingDTO = new BookingDTO();
         bookingDTO.setId(booking.getId());
-        bookingDTO.setTicketId(booking.getTicketId());
+        bookingDTO.setTicketId(booking.getTicket().getId());
         bookingDTO.setStartDestination(booking.getStartDestination());
         bookingDTO.setEndDestination(booking.getEndDestination());
         bookingDTO.setDepartureDate(booking.getDepartureDate());
@@ -94,10 +94,10 @@ public class BookingServiceImpl implements BookingService {
         booking.setArrivalDate(bus.getArrivalDate());
         booking.setArrivalTime(bus.getArrivalTime());
         booking.setBusName(bus.getName());
-        booking.setBusId(bus.getId());
-        booking.setTicketId(ticket.getId());
+        booking.setBus(bus);
+        booking.setTicket(ticket);
         booking.setPrice(ticket.getPrice());
-        booking.setUserId(ticket.getUserId());
+        booking.setUser(ticket.getUser());
         booking.setActive(true);
 
         return booking;
@@ -108,7 +108,7 @@ public class BookingServiceImpl implements BookingService {
         List<Bus> buses = busService.getBussesByIds(getBusIds(tickets));
 
         for (Ticket ticket : tickets) {
-            result.put(ticket.getId(), busService.getBusById(ticket.getBusId(), buses));
+            result.put(ticket.getId(), busService.getBusById(ticket.getBus().getId(), buses));
         }
 
         return result;
@@ -117,7 +117,7 @@ public class BookingServiceImpl implements BookingService {
     private Set<Long> getBusIds(List<Ticket> tickets) {
         Set<Long> result = new HashSet<>();
         for (Ticket ticket : tickets) {
-            result.add(ticket.getBusId());
+            result.add(ticket.getBus().getId());
         }
 
         return result;

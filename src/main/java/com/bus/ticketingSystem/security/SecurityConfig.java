@@ -34,7 +34,7 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults()).csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll()
+                .requestMatchers(SecurityConstants.REGISTER_PATH).permitAll()
                 .requestMatchers(HttpMethod.GET, SecurityConstants.BUS_PATH).permitAll()
                 .requestMatchers(SecurityConstants.BOOKING_PATH).permitAll()
                 .requestMatchers(SecurityConstants.TICKET_PATH).permitAll()

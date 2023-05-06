@@ -32,13 +32,13 @@ public class Ticket {
     @Column(name = "passenger_name", nullable = false)
     private String passengerName;
 
-    @NonNull
-    @Column(name = "user_id", nullable = false)
-    private long userId;
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
 
-    @NonNull
-    @Column(name = "bus_id", nullable = false)
-    private long busId;
+    @ManyToOne(targetEntity = Bus.class, fetch = FetchType.EAGER)
+    @JoinColumn(name="bus_id", nullable=false)
+    private Bus bus;
 
     @NonNull
     @Column(name = "issue_date", nullable = false)
