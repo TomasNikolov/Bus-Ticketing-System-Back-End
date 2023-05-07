@@ -7,6 +7,8 @@ import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.exception.ErrorResponse;
 import com.bus.ticketingSystem.repository.ConfirmationTokenRepository;
 import com.bus.ticketingSystem.repository.UserRepository;
+import com.bus.ticketingSystem.service.interfaces.BookingService;
+import com.bus.ticketingSystem.service.interfaces.TicketService;
 import com.bus.ticketingSystem.service.interfaces.UserService;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -30,7 +33,6 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private ConfirmationTokenRepository confirmationTokenRepository;
-    private EmailService emailService;
 
     @Override
     public User getUser(Long id) {
@@ -69,6 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> confirmEmail(String confirmationToken) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
 
@@ -80,6 +83,29 @@ public class UserServiceImpl implements UserService {
         }
 
         return ResponseEntity.badRequest().body("Error: Couldn't verify email");
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public User updateUser(UserDTO userDTO) {
+        User user = unwrapUser(userRepository.findById(userDTO.getId()), userDTO.getId());
+        user.setUsername(userDTO.getUsername());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(long id) {
+        confirmationTokenRepository.deleteAllInBatch(confirmationTokenRepository.findByUserId(id));
+        userRepository.deleteById(id);
     }
 
     private void sendEmail(UserDTO user, ConfirmationToken token) {

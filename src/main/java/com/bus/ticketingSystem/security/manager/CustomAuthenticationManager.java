@@ -3,6 +3,7 @@ package com.bus.ticketingSystem.security.manager;
 import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.service.interfaces.UserService;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

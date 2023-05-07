@@ -1,10 +1,13 @@
 package com.bus.ticketingSystem.service;
 
+import com.bus.ticketingSystem.DTO.BusDTO;
 import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.DTO.Reservation;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.BusRepository;
+import com.bus.ticketingSystem.service.interfaces.BookingService;
 import com.bus.ticketingSystem.service.interfaces.BusService;
+import com.bus.ticketingSystem.service.interfaces.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +39,8 @@ public class BusServiceImpl implements BusService {
     @Override
     @Transactional
     public Bus updateBusSeats(Long id, int reservedTickets) {
-        Bus bus = unwrapBus(busRepository.findById(id));
-        System.out.println("RESERVED TICKETS: " + reservedTickets);
+        Bus bus = unwrapBus(busRepository.findById(id), id);
         bus.setReservedSeats(bus.getReservedSeats() + reservedTickets);
-        System.out.println("RESERVED SEATS: " + bus.getReservedSeats());
         bus.setAvailableSeats(bus.getCapacity() - bus.getReservedSeats());
         return busRepository.save(bus);
     }
@@ -63,7 +64,7 @@ public class BusServiceImpl implements BusService {
     @Override
     @Transactional
     public void updateBusSeatsAfterBookingCancellation(Long id) {
-        Bus bus = unwrapBus(busRepository.findById(id));
+        Bus bus = unwrapBus(busRepository.findById(id), id);
         if (bus.getCapacity() > bus.getAvailableSeats()) {
             bus.setReservedSeats(bus.getReservedSeats() - 1);
             bus.setAvailableSeats(bus.getAvailableSeats() + 1);
@@ -73,7 +74,77 @@ public class BusServiceImpl implements BusService {
 
     @Override
     public Bus getBusById(long id) {
-        return unwrapBus(busRepository.findById(id));
+        return unwrapBus(busRepository.findById(id), id);
+    }
+
+    @Override
+    public List<Bus> getAllBuses() {
+        return busRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public Bus createBus(BusDTO busDTO) {
+        return busRepository.save(buildBus(busDTO));
+    }
+
+    @Override
+    @Transactional
+    public Bus updateBus(BusDTO busDTO) {
+        Bus bus = unwrapBus(busRepository.findById(busDTO.getId()), busDTO.getId());
+        bus.setName(busDTO.getName());
+        bus.setStartDestination(busDTO.getStartDestination());
+        bus.setEndDestination(busDTO.getEndDestination());
+        bus.setAvailableSeats(busDTO.getAvailableSeats());
+        bus.setCapacity(busDTO.getCapacity());
+        bus.setReservedSeats(busDTO.getReservedSeats());
+        bus.setDepartureTime(busDTO.getDepartureTime());
+        bus.setDepartureDate(busDTO.getDepartureDate());
+        bus.setArrivalDate(busDTO.getArrivalDate());
+        bus.setArrivalTime(busDTO.getArrivalTime());
+        bus.setDistance(busDTO.getDistance());
+        bus.setTicketPrice(busDTO.getTicketPrice());
+
+        return busRepository.save(bus);
+    }
+
+    @Override
+    @Transactional
+    public void updateBusSeatsAfterTicketDeletion(Map<Long, Integer> ticketsByBus) {
+        System.out.println("TICKETS BY BUS MAP: " + ticketsByBus);
+        List<Bus> busesToUpdate = busRepository.findAllById(ticketsByBus.keySet());
+        for (Bus bus : busesToUpdate) {
+            if (bus.getCapacity() > bus.getAvailableSeats()) {
+                bus.setAvailableSeats(bus.getAvailableSeats() + ticketsByBus.get(bus.getId()));
+                bus.setReservedSeats(bus.getReservedSeats() - ticketsByBus.get(bus.getId()));
+            }
+        }
+
+        busRepository.saveAllAndFlush(busesToUpdate);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBus(long id) {
+        busRepository.deleteById(id);
+    }
+
+    private Bus buildBus(BusDTO busDTO) {
+        Bus bus = new Bus();
+        bus.setName(busDTO.getName());
+        bus.setStartDestination(busDTO.getStartDestination());
+        bus.setEndDestination(busDTO.getEndDestination());
+        bus.setCapacity(busDTO.getCapacity());
+        bus.setAvailableSeats(busDTO.getAvailableSeats());
+        bus.setReservedSeats(busDTO.getReservedSeats());
+        bus.setDepartureDate(busDTO.getDepartureDate());
+        bus.setDepartureTime(busDTO.getDepartureTime());
+        bus.setArrivalDate(busDTO.getArrivalDate());
+        bus.setArrivalTime(busDTO.getArrivalTime());
+        bus.setDistance(busDTO.getDistance());
+        bus.setTicketPrice(busDTO.getTicketPrice());
+
+        return bus;
     }
 
     private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {
@@ -91,9 +162,9 @@ public class BusServiceImpl implements BusService {
         return result;
     }
 
-    private static Bus unwrapBus(Optional<Bus> entity) {
+    private static Bus unwrapBus(Optional<Bus> entity, long id) {
         if (entity.isPresent()) return entity.get();
         else
-            throw new EntityNotFoundException("We apologize, but we were unable to find any buses with this ID in our system.");
+            throw new EntityNotFoundException("We apologize, but we were unable to find any buses with this ID: " + id + " in our system.");
     }
 }

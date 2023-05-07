@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.security.SecurityConstants;
 import com.bus.ticketingSystem.security.manager.CustomAuthenticationManager;
-import com.bus.ticketingSystem.service.UserServiceImpl;
 import com.bus.ticketingSystem.service.interfaces.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

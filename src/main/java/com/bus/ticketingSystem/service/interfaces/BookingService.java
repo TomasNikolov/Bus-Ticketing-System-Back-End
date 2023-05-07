@@ -7,6 +7,16 @@ import java.util.List;
 
 public interface BookingService {
     List<Booking> createBookings(long userId);
+
     List<BookingDTO> getBookingsByUserId(long userId);
+
     void cancelBooking(long id);
+
+    List<Booking> getAllBookings();
+
+    Booking updateBooking(BookingDTO bookingDTO);
+
+    void deleteBookings(long userId);
+
+    void deleteBookingsByBusId(long busId);
 }

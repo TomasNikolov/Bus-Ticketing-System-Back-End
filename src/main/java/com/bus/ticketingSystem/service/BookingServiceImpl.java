@@ -57,10 +57,42 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public void cancelBooking(long id) {
-        Booking booking = unwrapBooking(bookingRepository.findById(id));
+        Booking booking = unwrapBooking(bookingRepository.findById(id), id);
         ticketService.deleteTicket(booking.getTicket().getId());
         busService.updateBusSeatsAfterBookingCancellation(booking.getBus().getId());
         bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public Booking updateBooking(BookingDTO bookingDTO) {
+        Booking booking = unwrapBooking(bookingRepository.findById(bookingDTO.getId()), bookingDTO.getId());
+        booking.setStartDestination(bookingDTO.getStartDestination());
+        booking.setEndDestination(bookingDTO.getEndDestination());
+        booking.setDepartureTime(bookingDTO.getDepartureTime());
+        booking.setDepartureDate(bookingDTO.getDepartureDate());
+        booking.setArrivalTime(bookingDTO.getArrivalTime());
+        booking.setArrivalDate(bookingDTO.getArrivalDate());
+        booking.setBusName(bookingDTO.getBusName());
+        booking.setActive(bookingDTO.getStatus().equals("Active"));
+
+        return booking;
+    }
+
+    @Override
+    @Transactional
+    public void deleteBookings(long userId) {
+        bookingRepository.deleteAllInBatch(bookingRepository.findBookingByUserId(userId));
+    }
+
+    @Override
+    public void deleteBookingsByBusId(long busId) {
+        bookingRepository.deleteAllInBatch(bookingRepository.findBookingByBusId(busId));
     }
 
     private static BookingDTO createBookingDTO(Booking booking) {
@@ -123,9 +155,9 @@ public class BookingServiceImpl implements BookingService {
         return result;
     }
 
-    private static Booking unwrapBooking(Optional<Booking> entity) {
+    private static Booking unwrapBooking(Optional<Booking> entity, long id) {
         if (entity.isPresent()) return entity.get();
         else
-            throw new EntityNotFoundException("We apologize, but we were unable to find any bookings with this ID in our system.");
+            throw new EntityNotFoundException("We apologize, but we were unable to find any bookings with this ID: " + id + " in our system.");
     }
 }

@@ -11,4 +11,6 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT * FROM bookings WHERE bookings.user_id = ?1", nativeQuery = true)
     List<Booking> findBookingByUserId(long userId);
+
+    List<Booking> findBookingByBusId(long busId);
 }

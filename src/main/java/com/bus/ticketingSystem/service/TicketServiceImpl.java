@@ -84,7 +84,15 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public void deleteTickets(Set<Long> ids) {
+        List<Ticket> tickets = ticketRepository.findAllById(ids);
+        Map<Long, Integer> ticketsByBus = initBusMap(tickets);
+        for (Ticket ticket : tickets) {
+            ticketsByBus.put(ticket.getBus().getId(), ticketsByBus.get(ticket.getBus().getId()) + 1);
+        }
+
+        busService.updateBusSeatsAfterTicketDeletion(ticketsByBus);
         ticketRepository.deleteAllById(ids);
     }
 
@@ -92,6 +100,33 @@ public class TicketServiceImpl implements TicketService {
     public void sendTicket(long id) {
         Ticket ticket = unwrapTicket(ticketRepository.findById(id));
         generatePDFAndSendMail(ticket, ticket.getUser());
+    }
+
+    @Override
+    @Transactional
+    public void deleteTicketsByUserId(long userId) {
+        List<Ticket> tickets = ticketRepository.findTicketsByUserId(userId);
+        Map<Long, Integer> ticketsByBus = initBusMap(tickets);
+        for (Ticket ticket : tickets) {
+            ticketsByBus.put(ticket.getBus().getId(), ticketsByBus.get(ticket.getBus().getId()) + 1);
+        }
+
+        busService.updateBusSeatsAfterTicketDeletion(ticketsByBus);
+        ticketRepository.deleteAllInBatch(tickets);
+    }
+
+    @Override
+    public void deleteTicketsByBusId(long busId) {
+        ticketRepository.deleteAllInBatch(ticketRepository.findTicketsByBusId(busId));
+    }
+
+    private static Map<Long, Integer> initBusMap(List<Ticket> tickets) {
+        Map<Long, Integer> result = new HashMap<>();
+        for (Ticket ticket : tickets) {
+            result.put(ticket.getBus().getId(), 0);
+        }
+
+        return result;
     }
 
     private void generatePDFAndSendMail(Ticket ticket, User user) {

@@ -3,6 +3,7 @@ package com.bus.ticketingSystem.web;
 import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.DTO.Reservation;
 import com.bus.ticketingSystem.service.interfaces.BusService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
