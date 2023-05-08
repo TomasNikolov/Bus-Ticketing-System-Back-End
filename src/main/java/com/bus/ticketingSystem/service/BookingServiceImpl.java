@@ -78,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setDepartureDate(bookingDTO.getDepartureDate());
         booking.setArrivalTime(bookingDTO.getArrivalTime());
         booking.setArrivalDate(bookingDTO.getArrivalDate());
-        booking.setBusName(bookingDTO.getBusName());
+        booking.setPrice(bookingDTO.getPrice());
         booking.setActive(bookingDTO.getStatus().equals("Active"));
 
         return booking;

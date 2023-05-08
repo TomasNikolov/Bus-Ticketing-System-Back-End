@@ -97,6 +97,13 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userDTO.getUsername());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
+        user.setEnabled(Boolean.parseBoolean(userDTO.getEnabled()));
+
+        if (userDTO.getRole().equals("USER")) {
+            user.setRole(User.Role.USER);
+        } else {
+            user.setRole(User.Role.ADMIN);
+        }
 
         return user;
     }
