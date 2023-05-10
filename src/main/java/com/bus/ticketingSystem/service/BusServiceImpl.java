@@ -5,9 +5,7 @@ import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.DTO.Reservation;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.BusRepository;
-import com.bus.ticketingSystem.service.interfaces.BookingService;
 import com.bus.ticketingSystem.service.interfaces.BusService;
-import com.bus.ticketingSystem.service.interfaces.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

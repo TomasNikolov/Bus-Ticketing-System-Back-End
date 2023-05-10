@@ -81,7 +81,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setPrice(bookingDTO.getPrice());
         booking.setActive(bookingDTO.getStatus().equals("Active"));
 
-        return booking;
+        return bookingRepository.save(booking);
     }
 
     @Override

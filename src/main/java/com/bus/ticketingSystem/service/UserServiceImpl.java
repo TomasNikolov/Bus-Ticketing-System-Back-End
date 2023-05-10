@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
             user.setRole(User.Role.ADMIN);
         }
 
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
@@ -113,6 +113,15 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(long id) {
         confirmationTokenRepository.deleteAllInBatch(confirmationTokenRepository.findByUserId(id));
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateProfile(UserDTO userDTO) {
+        User user = unwrapUser(userRepository.findById(userDTO.getId()), userDTO.getId());
+        user.setUsername(userDTO.getUsername());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        userRepository.save(user);
     }
 
     private void sendEmail(UserDTO user, ConfirmationToken token) {
