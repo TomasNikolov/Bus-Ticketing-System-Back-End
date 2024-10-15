@@ -29,14 +29,10 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken authentication = getAuthentication(header);
 
-            System.out.println("AUTH: " + authentication);
-
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(SecurityContextHolder.getContext());
         }catch (Exception e) {
-            System.out.println("EXCEPTION IN JWT AUTHORIZATION");
             throw e;
         }
 

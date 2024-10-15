@@ -65,6 +65,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getAllBookings() {
+        //TODO: Change this method to return only the bookings for the current admin company user
         return bookingRepository.findAll();
     }
 

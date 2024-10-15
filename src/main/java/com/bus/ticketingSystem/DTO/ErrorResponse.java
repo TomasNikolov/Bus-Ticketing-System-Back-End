@@ -1,4 +1,4 @@
-package com.bus.ticketingSystem.exception;
+package com.bus.ticketingSystem.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

@@ -88,6 +88,12 @@ public class BusServiceImpl implements BusService {
 
     @Override
     @Transactional
+    public void createBuses(List<BusDTO> busDTOs) {
+        busRepository.saveAll(buildBuses(busDTOs));
+    }
+
+    @Override
+    @Transactional
     public Bus updateBus(BusDTO busDTO) {
         Bus bus = unwrapBus(busRepository.findById(busDTO.getId()), busDTO.getId());
         bus.setName(busDTO.getName());
@@ -109,7 +115,6 @@ public class BusServiceImpl implements BusService {
     @Override
     @Transactional
     public void updateBusSeatsAfterTicketDeletion(Map<Long, Integer> ticketsByBus) {
-        System.out.println("TICKETS BY BUS MAP: " + ticketsByBus);
         List<Bus> busesToUpdate = busRepository.findAllById(ticketsByBus.keySet());
         for (Bus bus : busesToUpdate) {
             if (bus.getCapacity() > bus.getAvailableSeats()) {
@@ -143,6 +148,15 @@ public class BusServiceImpl implements BusService {
         bus.setTicketPrice(busDTO.getTicketPrice());
 
         return bus;
+    }
+
+    private List<Bus> buildBuses(List<BusDTO> busDTOs) {
+        List<Bus> buses = new ArrayList<>();
+        for (BusDTO busDTO : busDTOs) {
+            buses.add(buildBus(busDTO));
+        }
+
+        return buses;
     }
 
     private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {

@@ -1,7 +1,7 @@
 package com.bus.ticketingSystem;
 
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
-import com.bus.ticketingSystem.exception.ErrorResponse;
+import com.bus.ticketingSystem.DTO.ErrorResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;

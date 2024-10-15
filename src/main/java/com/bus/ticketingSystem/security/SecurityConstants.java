@@ -6,7 +6,7 @@ public class SecurityConstants {
     public static final String BEARER = "Bearer ";
     public static final String AUTHORIZATION = "Authorization";
     public static final String REGISTER_PATH = "/user/**";
-    public static final String BUS_PATH = "/buses";
+    public static final String BUS_PATH = "/buses/**";
     public static final String BOOKING_PATH = "/booking/**";
     public static final String TICKET_PATH = "/ticket/**";
     public static final String PAYMENT_PATH = "/payment";

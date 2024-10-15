@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/admin")
@@ -29,7 +31,15 @@ public class AdminController {
 
     @PostMapping("/buses")
     public ResponseEntity<?> createBus(@Valid @RequestBody BusDTO busDTO) {
+        System.out.println("CREATE BUS HAS BEEN INVOKED");
         busService.createBus(busDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/buses/bulk")
+    public ResponseEntity<?> createBuses(@Valid @RequestBody List<BusDTO> busDTOs) {
+        System.out.println("CREATE BUSES HAS BEEN INVOKED");
+        busService.createBuses(busDTOs);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

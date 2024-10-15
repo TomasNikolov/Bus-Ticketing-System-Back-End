@@ -25,6 +25,8 @@ public interface BusService {
 
     Bus createBus(BusDTO busDTO);
 
+    void createBuses(List<BusDTO> busDTOs);
+
     Bus updateBus(BusDTO busDTO);
 
     void updateBusSeatsAfterTicketDeletion(Map<Long, Integer> ticketsByBus);
