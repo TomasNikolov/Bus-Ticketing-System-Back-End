@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 
 tickets/
+QRCodes/
 
 ### STS ###
 .apt_generated

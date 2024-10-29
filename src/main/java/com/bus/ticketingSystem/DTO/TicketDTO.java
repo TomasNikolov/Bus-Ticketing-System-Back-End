@@ -15,4 +15,6 @@ public class TicketDTO {
     private int reservedTickets;
     private long userId;
     private double price;
+    private int seatNumber;
+    private long id;
 }

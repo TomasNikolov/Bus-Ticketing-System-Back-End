@@ -6,26 +6,28 @@ import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
 import com.bus.ticketingSystem.repository.TicketRepository;
 import com.bus.ticketingSystem.service.interfaces.BusService;
+import com.bus.ticketingSystem.service.interfaces.QRCodeGeneratorService;
 import com.bus.ticketingSystem.service.interfaces.TicketService;
 import com.bus.ticketingSystem.service.interfaces.UserService;
 import com.lowagie.text.DocumentException;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
+import jakarta.annotation.Resource;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import jakarta.persistence.criteria.Path;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -35,17 +37,20 @@ public class TicketServiceImpl implements TicketService {
     private TicketRepository ticketRepository;
     private BusService busService;
     private UserService userService;
+    private QRCodeGeneratorService qrCodeGeneratorService;
 
-    public TicketServiceImpl(TicketRepository ticketRepository, BusService busService, UserService userService, TemplateEngine templateEngine) {
+    public TicketServiceImpl(TicketRepository ticketRepository, BusService busService, UserService userService,
+                             TemplateEngine templateEngine, QRCodeGeneratorService qrCodeGeneratorService) {
         this.ticketRepository = ticketRepository;
         this.busService = busService;
         this.userService = userService;
         this.templateEngine = templateEngine;
+        this.qrCodeGeneratorService = qrCodeGeneratorService;
     }
 
     @Override
     @Transactional
-    public List<Ticket> reserveTickets(List<TicketDTO> tickets) {
+    public List<TicketDTO> reserveTickets(List<TicketDTO> tickets) {
         List<Ticket> ticketsForSave = new ArrayList<>();
         Map<Integer, Boolean> busSeats = generateSeatsMap(tickets.get(0));
 
@@ -59,7 +64,7 @@ public class TicketServiceImpl implements TicketService {
             busService.updateBusSeats(tickets.get(0).getBusId(), tickets.size());
         }
 
-        return alreadySavedTickets;
+        return this.parseTickets(alreadySavedTickets);
     }
 
     @Override
@@ -120,6 +125,22 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.deleteAllInBatch(ticketRepository.findTicketsByBusId(busId));
     }
 
+    private List<TicketDTO> parseTickets(List<Ticket> alreadySavedTickets) {
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        for (Ticket ticket : alreadySavedTickets) {
+            TicketDTO ticketDTO = new TicketDTO();
+            ticketDTO.setPassengerName(ticket.getPassengerName());
+            ticketDTO.setStartDestination(ticket.getStartDestination());
+            ticketDTO.setEndDestination(ticket.getEndDestination());
+            ticketDTO.setPrice(ticket.getPrice());
+            ticketDTO.setSeatNumber(ticket.getSeatNumber());
+            ticketDTO.setId(ticket.getId());
+            ticketDTOs.add(ticketDTO);
+        }
+
+        return ticketDTOs;
+    }
+
     private static Map<Long, Integer> initBusMap(List<Ticket> tickets) {
         Map<Long, Integer> result = new HashMap<>();
         for (Ticket ticket : tickets) {
@@ -133,7 +154,9 @@ public class TicketServiceImpl implements TicketService {
         int random = (int) (Math.random() * 90) + 10;
         String nameGenerator = user.getFirstName() + "_" + user.getLastName() + "_ticket_" + random + ".pdf";
         try {
-            createPdf(ticket, user, nameGenerator);
+//            String qrCodePath = qrCodeGeneratorService.generateQRCode(ticket);
+            String qrCode = qrCodeGeneratorService.generateQRCodeBase64(ticket);
+            createPdf(ticket, user, nameGenerator, qrCode);
             sendEmail(user, nameGenerator);
         } catch (DocumentException | IOException e) {
             System.out.println("Error in generatePDFAndSendMail: " + e.getMessage());
@@ -196,7 +219,7 @@ public class TicketServiceImpl implements TicketService {
         return message;
     }
 
-    public void createPdf(Ticket ticket, User user, String fileName) throws DocumentException, IOException {
+    public void createPdf(Ticket ticket, User user, String fileName, String qrCodePath) throws DocumentException, IOException {
         Context context = new Context();
         context.setVariable("name", user.getFirstName() + " " + user.getLastName());
         context.setVariable("date", ticket.getIssueDate());
@@ -205,6 +228,7 @@ public class TicketServiceImpl implements TicketService {
         context.setVariable("ticketNumber", ticket.getId());
         context.setVariable("seatNumber", ticket.getSeatNumber());
         context.setVariable("price", ticket.getPrice());
+        context.setVariable("qrCodePath", qrCodePath);
 
         String processHTML = templateEngine.process("ticket_template", context);
 

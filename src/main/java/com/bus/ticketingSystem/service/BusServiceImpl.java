@@ -13,7 +13,8 @@ import java.util.*;
 
 @Service
 public class BusServiceImpl implements BusService {
-    private static final String BUS_NOT_FOUND_ERROR_MESSAGE = "We apologize, but we were unable to find any available buses for your selected date and destination in our system.";
+    private static final String BUS_NOT_FOUND_ERROR_MESSAGE = "We’re sorry, but we couldn’t find any available buses for your chosen date and destination in our system. Please try adjusting your search criteria or check back later";
+    private static final String BUS_NOT_FOUND_WITH_TICKET_PRICE_ERROR_MESSAGE = "We’re sorry, but we couldn’t find any available buses for your chosen date, destination and price target in our system. Please try adjusting your search criteria or check back later";
     private BusRepository busRepository;
 
     public BusServiceImpl(BusRepository busRepository) {
@@ -31,7 +32,22 @@ public class BusServiceImpl implements BusService {
             System.out.println("STACK TRACE: " + Arrays.toString(e.getStackTrace()));
         }
 
-        return unwrapBuses(buses);
+        return unwrapBuses(buses, false);
+    }
+
+    @Override
+    public List<Bus> getBusesByDestinationDateAndTicketPrice(Reservation reservation) {
+        List<Optional<Bus>> buses = new ArrayList<>();
+        try {
+            buses = busRepository.findBusByRouteDateAndTicketPrice(reservation.getStartDestination(),
+                    reservation.getEndDestination(), reservation.getDate(), reservation.getMaxTicketPrice());
+        } catch (Exception e) {
+            System.out.println("EXCEPTION");
+            System.out.println("MESSAGE: " + e.getMessage());
+            System.out.println("STACK TRACE: " + Arrays.toString(e.getStackTrace()));
+        }
+
+        return unwrapBuses(buses, true);
     }
 
     @Override
@@ -159,7 +175,7 @@ public class BusServiceImpl implements BusService {
         return buses;
     }
 
-    private static List<Bus> unwrapBuses(List<Optional<Bus>> entity) {
+    private static List<Bus> unwrapBuses(List<Optional<Bus>> entity, Boolean searchWithTicketPrice) {
         List<Bus> result = new ArrayList<>();
         for (Optional<Bus> optionalBus : entity) {
             if (optionalBus.isPresent()) {
@@ -167,7 +183,9 @@ public class BusServiceImpl implements BusService {
             }
         }
 
-        if (result.isEmpty()) {
+        if (result.isEmpty() && searchWithTicketPrice) {
+            throw new EntityNotFoundException(BUS_NOT_FOUND_WITH_TICKET_PRICE_ERROR_MESSAGE);
+        } else if (result.isEmpty()) {
             throw new EntityNotFoundException(BUS_NOT_FOUND_ERROR_MESSAGE);
         }
 

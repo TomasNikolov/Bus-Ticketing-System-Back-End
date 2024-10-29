@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface TicketService {
-    List<Ticket> reserveTickets(List<TicketDTO> tickets);
+    List<TicketDTO> reserveTickets(List<TicketDTO> tickets);
 
     List<Ticket> payTickets(long userId);
 

@@ -11,6 +11,8 @@ import java.util.Set;
 public interface BusService {
     List<Bus> getBusesByDestinationAndDate(Reservation reservation);
 
+    List<Bus> getBusesByDestinationDateAndTicketPrice(Reservation reservation);
+
     Bus updateBusSeats(Long id, int reservedTickets);
 
     List<Bus> getBussesByIds(Set<Long> ids);

@@ -27,7 +27,7 @@ public class TicketController {
     }
 
     @PostMapping("/reserve")
-    public ResponseEntity<List<Ticket>> reserveTicket(@Valid @RequestBody List<TicketDTO> tickets) {
+    public ResponseEntity<?> reserveTicket(@Valid @RequestBody List<TicketDTO> tickets) {
         return new ResponseEntity<>(ticketService.reserveTickets(tickets), HttpStatus.OK);
     }
 

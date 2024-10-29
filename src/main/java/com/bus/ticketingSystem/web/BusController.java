@@ -21,7 +21,15 @@ public class BusController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Bus>> getBuses(@RequestParam String start, @RequestParam String end, @RequestParam LocalDate date) {
+    public ResponseEntity<List<Bus>> getBuses(@RequestParam String start,
+                                              @RequestParam String end,
+                                              @RequestParam LocalDate date,
+                                              @RequestParam(required = false, defaultValue = "0") double maxTicketPrice) {
+
+        if (maxTicketPrice > 0) {
+            return new ResponseEntity<>(busService.getBusesByDestinationDateAndTicketPrice(
+                    new Reservation(start, end, date, maxTicketPrice)), HttpStatus.OK);
+        }
         return new ResponseEntity<>(busService.getBusesByDestinationAndDate(new Reservation(start, end, date)), HttpStatus.OK);
     }
 }

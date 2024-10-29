@@ -92,6 +92,19 @@
         .text-capitalize {
             text-transform: capitalize;
         }
+
+        .qr-code {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .qr-code img {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #007bff;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +144,14 @@
             <td class="text-secondary">CREDIT CARD</td>
         </tr>
     </table>
+    <div class="qr-code">
+        <img src="data:image/png;base64,[[${qrCodePath}]]" alt="QR Code" />
+    </div>
+    <div class="qr-code">
+        <img src="data:image/png;base64,${qrCodePath}" alt="QR Code" />
+    </div>
+    <img src="data:image/png;base64,${qrCodePath}" alt="QR Code"/>
+    <img src="data:image/png;base64,[[${qrCodePath}]]" alt="QR Code" />
     <p class="text-center text-muted">Thank you for choosing our service!</p>
 </div>
 </body>

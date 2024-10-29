@@ -12,8 +12,12 @@ import lombok.*;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private long id;
+
+    @NonNull
     @Column(name = "transaction_id")
-    private long transactionId;
+    private String transactionId;
 
     @NonNull
     @Column(name = "card_number", nullable = false)
@@ -27,12 +31,17 @@ public class Payment {
     @Column(name = "expiry_date", nullable = false)
     private String expiryDate;
 
-    @NonNull
-    @Column(nullable = false)
-    private int cvv;
+    @Column(name = "payment_token", nullable = false)
+    private String paymentToken;
 
     @NonNull
     @Column(nullable = false)
     private double amount;
 
+    @NonNull
+    @Column(name = "user_id", nullable = false)
+    private long userId;
+
+    @Column(name = "card_first_digit")
+    private int cardFirstDigit;
 }
