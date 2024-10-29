@@ -95,12 +95,17 @@
 
         .qr-code {
             display: flex;
+            text-align: center;
+            align-content: center;
             justify-content: center;
             margin: 20px 0;
         }
 
         .qr-code img {
             width: 120px;
+            text-align: center;
+            align-content: center;
+            justify-content: center;
             height: 120px;
             border: 3px solid #007bff;
             border-radius: 10px;
@@ -144,14 +149,10 @@
             <td class="text-secondary">CREDIT CARD</td>
         </tr>
     </table>
+
     <div class="qr-code">
-        <img src="data:image/png;base64,[[${qrCodePath}]]" alt="QR Code" />
+        <img th:src="${qrCodePath}" style="width: 200px; height: 200px" alt="QR Code" />
     </div>
-    <div class="qr-code">
-        <img src="data:image/png;base64,${qrCodePath}" alt="QR Code" />
-    </div>
-    <img src="data:image/png;base64,${qrCodePath}" alt="QR Code"/>
-    <img src="data:image/png;base64,[[${qrCodePath}]]" alt="QR Code" />
     <p class="text-center text-muted">Thank you for choosing our service!</p>
 </div>
 </body>

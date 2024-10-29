@@ -1,6 +1,7 @@
 package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.DTO.TicketDTO;
+import com.bus.ticketingSystem.config.ByteArrayDataSource;
 import com.bus.ticketingSystem.entity.Ticket;
 import com.bus.ticketingSystem.entity.User;
 import com.bus.ticketingSystem.exception.EntityNotFoundException;
@@ -12,12 +13,8 @@ import com.bus.ticketingSystem.service.interfaces.UserService;
 import com.lowagie.text.DocumentException;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
-import jakarta.activation.FileDataSource;
-import jakarta.annotation.Resource;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
-import jakarta.persistence.criteria.Path;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -27,7 +24,6 @@ import java.io.*;
 
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -154,17 +150,16 @@ public class TicketServiceImpl implements TicketService {
         int random = (int) (Math.random() * 90) + 10;
         String nameGenerator = user.getFirstName() + "_" + user.getLastName() + "_ticket_" + random + ".pdf";
         try {
-//            String qrCodePath = qrCodeGeneratorService.generateQRCode(ticket);
-            String qrCode = qrCodeGeneratorService.generateQRCodeBase64(ticket);
-            createPdf(ticket, user, nameGenerator, qrCode);
-            sendEmail(user, nameGenerator);
+            String qrCode = "data:image/png;base64," + qrCodeGeneratorService.generateQRCodeBase64(ticket);
+            byte[] pdfData = createPdf(ticket, user, qrCode);
+            sendEmail(user, pdfData, nameGenerator);
         } catch (DocumentException | IOException e) {
             System.out.println("Error in generatePDFAndSendMail: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void sendEmail(User user, String fileName) {
+    private void sendEmail(User user, byte[] pdfData, String fileName) {
         try {
             Properties props = new Properties();
             props.put("mail.smtp.auth", true);
@@ -179,7 +174,7 @@ public class TicketServiceImpl implements TicketService {
                         }
                     });
 
-            Transport.send(createTicketEmail(user, fileName, session));
+            Transport.send(createTicketEmail(user, pdfData, fileName, session));
 
             System.out.println("Sent message successfully....");
         } catch (MessagingException e) {
@@ -188,11 +183,12 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
-    private static Message createTicketEmail(User user, String fileName, Session session) throws MessagingException {
+    private static Message createTicketEmail(User user, byte[] pdfData, String fileName, Session session) throws MessagingException {
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress("tomasnikolov12@gmail.com"));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
         message.setSubject("BUS TICKET");
+
         BodyPart messageBodyPart = new MimeBodyPart();
         messageBodyPart.setText("Dear " + user.getFirstName() + " " + user.getLastName() + ",\n" +
                 "\n" +
@@ -208,18 +204,19 @@ public class TicketServiceImpl implements TicketService {
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(messageBodyPart);
-        messageBodyPart = new MimeBodyPart();
 
-        DataSource source = new FileDataSource("tickets/" + fileName);
+        messageBodyPart = new MimeBodyPart();
+        DataSource source = new ByteArrayDataSource(pdfData, fileName, "application/pdf");
         messageBodyPart.setDataHandler(new DataHandler(source));
         messageBodyPart.setFileName(fileName);
         multipart.addBodyPart(messageBodyPart);
+
         message.setContent(multipart);
 
         return message;
     }
 
-    public void createPdf(Ticket ticket, User user, String fileName, String qrCodePath) throws DocumentException, IOException {
+    public byte[] createPdf(Ticket ticket, User user, String qrCode) throws DocumentException, IOException {
         Context context = new Context();
         context.setVariable("name", user.getFirstName() + " " + user.getLastName());
         context.setVariable("date", ticket.getIssueDate());
@@ -228,21 +225,20 @@ public class TicketServiceImpl implements TicketService {
         context.setVariable("ticketNumber", ticket.getId());
         context.setVariable("seatNumber", ticket.getSeatNumber());
         context.setVariable("price", ticket.getPrice());
-        context.setVariable("qrCodePath", qrCodePath);
+        context.setVariable("qrCodePath", qrCode);
 
         String processHTML = templateEngine.process("ticket_template", context);
 
-        try {
-            OutputStream out = new FileOutputStream("tickets/" + fileName);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer ir = new ITextRenderer();
             ir.setDocumentFromString(processHTML);
             ir.layout();
-            ir.createPDF(out, false);
+            ir.createPDF(outputStream, false);
             ir.finishPDF();
-            out.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Cannot create PDF");
-            e.printStackTrace();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            System.out.println("Error generating PDF: " + e.getMessage());
+            throw e;
         }
     }
 
