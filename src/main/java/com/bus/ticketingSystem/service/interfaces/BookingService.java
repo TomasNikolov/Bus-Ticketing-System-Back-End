@@ -12,7 +12,7 @@ public interface BookingService {
 
     void cancelBooking(long id);
 
-    List<Booking> getAllBookings();
+    List<BookingDTO> getAllBookings();
 
     Booking updateBooking(BookingDTO bookingDTO);
 

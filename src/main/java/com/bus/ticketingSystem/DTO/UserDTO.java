@@ -15,4 +15,5 @@ public class UserDTO {
     private String confirmationUrl;
     private String enabled;
     private String role;
+    private String status;
 }

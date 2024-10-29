@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    @Query(value = "SELECT * FROM payment WHERE user_id = ?1 AND payment_token IS NOT NULL AND card_first_digit IS NOT NULL", nativeQuery = true)
+    @Query(value = "SELECT * FROM payment WHERE user_id = ?1 AND payment_token IS NOT NULL AND card_first_digit > 0", nativeQuery = true)
     List<Payment> getPaymentsByUserId(long userId);
 }

@@ -17,7 +17,7 @@ public interface UserService {
 
     ResponseEntity<?> confirmEmail(String confirmationToken);
 
-    List<User> getUsers();
+    List<UserDTO> getUsers();
 
     User updateUser(UserDTO userDTO);
 

@@ -1,5 +1,6 @@
 package com.bus.ticketingSystem.service;
 
+import com.bus.ticketingSystem.DTO.PaymentDTO;
 import com.bus.ticketingSystem.DTO.UserDTO;
 import com.bus.ticketingSystem.entity.ConfirmationToken;
 import com.bus.ticketingSystem.entity.User;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -84,8 +86,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getUsers() {
+        return this.parseUsers(userRepository.findAll());
+    }
+
+    private List<UserDTO> parseUsers(List<User> users) {
+        return users.stream()
+                .map(user -> {
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setUsername(user.getUsername());
+                    userDTO.setFirstName(user.getFirstName());
+                    userDTO.setLastName(user.getLastName());
+                    userDTO.setEmail(user.getEmail());
+                    userDTO.setRole(user.getRole().name());
+                    userDTO.setStatus(user.isEnabled() ? "Active" : "Inactive");
+                    userDTO.setId(user.getId());
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

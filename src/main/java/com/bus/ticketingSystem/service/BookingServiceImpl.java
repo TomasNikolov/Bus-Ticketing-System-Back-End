@@ -1,6 +1,7 @@
 package com.bus.ticketingSystem.service;
 
 import com.bus.ticketingSystem.DTO.BookingDTO;
+import com.bus.ticketingSystem.DTO.PaymentDTO;
 import com.bus.ticketingSystem.entity.Booking;
 import com.bus.ticketingSystem.entity.Bus;
 import com.bus.ticketingSystem.entity.Ticket;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -64,9 +66,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllBookings() {
-        //TODO: Change this method to return only the bookings for the current admin company user
-        return bookingRepository.findAll();
+    public List<BookingDTO> getAllBookings() {
+        return this.parseBookings(bookingRepository.findAll());
     }
 
     @Override
@@ -94,6 +95,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void deleteBookingsByBusId(long busId) {
         bookingRepository.deleteAllInBatch(bookingRepository.findBookingByBusId(busId));
+    }
+
+    private List<BookingDTO> parseBookings(List<Booking> bookings) {
+        return bookings.stream()
+                .map(BookingServiceImpl::createBookingDTO)
+                .collect(Collectors.toList());
     }
 
     private static BookingDTO createBookingDTO(Booking booking) {
