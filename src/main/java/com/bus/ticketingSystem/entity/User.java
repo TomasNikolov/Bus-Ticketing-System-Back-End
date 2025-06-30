@@ -24,13 +24,34 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-//    @NotBlank(message =  "email cannot be blank")
-//    @NonNull
-//    @Column(nullable = false, unique = true)
-//    private String email;
+    @NotBlank(message =  "email cannot be blank")
+    @NonNull
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @NotBlank(message =  "password cannot be blank")
     @NonNull
     @Column(nullable = false)
     private String password;
+
+    @NonNull
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @NonNull
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @NonNull
+    @Column(nullable = false)
+    private boolean isEnabled;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "ENUM('USER', 'ADMIN') DEFAULT 'USER'")
+    private Role role;
+
+    public enum Role {
+        ADMIN,
+        USER
+    }
 }

@@ -1,0 +1,35 @@
+package com.bus.ticketingSystem.web;
+
+import com.bus.ticketingSystem.entity.Bus;
+import com.bus.ticketingSystem.DTO.Reservation;
+import com.bus.ticketingSystem.service.interfaces.BusService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/buses")
+public class BusController {
+    private BusService busService;
+
+    public BusController(BusService busService) {
+        this.busService = busService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Bus>> getBuses(@RequestParam String start,
+                                              @RequestParam String end,
+                                              @RequestParam LocalDate date,
+                                              @RequestParam(required = false, defaultValue = "0") double maxTicketPrice) {
+
+        if (maxTicketPrice > 0) {
+            return new ResponseEntity<>(busService.getBusesByDestinationDateAndTicketPrice(
+                    new Reservation(start, end, date, maxTicketPrice)), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(busService.getBusesByDestinationAndDate(new Reservation(start, end, date)), HttpStatus.OK);
+    }
+}

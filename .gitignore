@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+tickets/
+QRCodes/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -28,7 +31,7 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-*.application.properties
+*.properties
 
 ### VS Code ###
 .vscode/

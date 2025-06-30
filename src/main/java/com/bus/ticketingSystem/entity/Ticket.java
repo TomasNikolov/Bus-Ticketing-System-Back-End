@@ -1,0 +1,54 @@
+package com.bus.ticketingSystem.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "ticket")
+@Getter
+@Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
+public class Ticket {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @NonNull
+    @Column(name = "seat_number", nullable = false)
+    private int seatNumber;
+
+    @NonNull
+    @Column(name = "start_destination", nullable = false)
+    private String startDestination;
+
+    @NonNull
+    @Column(name = "end_destination", nullable = false)
+    private String endDestination;
+
+    @NonNull
+    @Column(name = "passenger_name", nullable = false)
+    private String passengerName;
+
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
+
+    @ManyToOne(targetEntity = Bus.class, fetch = FetchType.EAGER)
+    @JoinColumn(name="bus_id", nullable=false)
+    private Bus bus;
+
+    @NonNull
+    @Column(name = "issue_date", nullable = false)
+    private LocalDateTime issueDate;
+
+    @NonNull
+    @Column(nullable = false)
+    private double price;
+
+    @NonNull
+    @Column(name = "is_payed", nullable = false)
+    private boolean isPayed;
+}
