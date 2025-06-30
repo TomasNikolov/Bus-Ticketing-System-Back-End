@@ -31,6 +31,7 @@ QRCodes/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+*.properties
 
 ### VS Code ###
 .vscode/
